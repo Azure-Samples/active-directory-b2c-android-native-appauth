@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    This contains the authorization service configuration details that are used to demonstrate
+    authentication. By default, all authorization services are disabled until you modify this file
+    to provide your own configuration details.
+    -->
+    <eat-comment/>
+
+    <!--
+    Replace the strings below with your B2C configuration and enable it by setting b2c_enabled
+    to true.
+    -->
+
+    <bool name="b2c_enabled">false</bool>
+    <string name="b2c_tenant">TENANT_ID.onmicrosoft.com</string>
+    <string name="b2c_client_id" translatable="false">CLIENT_ID</string>
+    <string name="b2c_redirect_uri" translatable="false">REDIRECT_URI</string>
+    
+    <!--
+    Replace the optional strings below with the corresponding policy names.
+    -->
+    <string name="b2c_signup_policy" translatable="false">SIGNUP_POLICY_NAME</string>
+    <string name="b2c_signin_policy" translatable="false">SIGNIN_POLICY_NAME</string>
+    <string name="b2c_signupin_policy" translatable="false">SIGNUPIN_POLICY_NAME</string>
+    <string name="b2c_editprofile_policy" translatable="false">EDITPROFILE_POLICY_NAME</string>
+
+</resources>

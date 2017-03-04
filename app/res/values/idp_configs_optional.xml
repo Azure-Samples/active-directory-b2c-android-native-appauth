@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    This file contains the OAuth2 configuration details that do not typically need to be changed
+    for the demo app to correctly interact with each IDP.
+    -->
+    <eat-comment/>
+
+    <string name="b2c_name">B2C</string>
+    <string name="b2c_discovery_uri" translatable="false">https://login.microsoftonline.com/%1$s/v2.0/.well-known/openid-configuration?p=%2$s</string>
+    <string name="b2c_scope_string" translatable="false">openid profile</string>
+
+</resources>

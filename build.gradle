@@ -1,0 +1,49 @@
+apply from: 'config/localprops.gradle'
+apply from: 'config/keystore.gradle'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.1'
+        classpath 'org.ajoberstar:gradle-git:1.5.1'
+    }
+}
+
+subprojects {
+    repositories {
+        jcenter()
+
+        maven {
+            url "${rootProject.androidSdkDir}/extras/android/m2repository"
+        }
+    }
+}
+
+ext.verifyKeystore()
+
+def grgit = org.ajoberstar.grgit.Grgit.open(dir: '.')
+def lastCommit = grgit.head()
+
+project.ext.versionNum = grgit.log(includes:['HEAD']).size()
+project.ext.versionName = grgit.describe()
+project.ext.versionDate = lastCommit.getDate()
+if (project.ext.versionName == null) {
+    project.ext.versionNme = 'DEV'
+}
+
+project.ext.minSdkVersion = 15
+project.ext.compileSdkVersion = 25
+project.ext.buildToolsVersion = '25.0.1'
+project.ext.supportLibVersion = '25.1.0'
+
+task showVersion {
+    doLast {
+        logger.lifecycle("Version ID: " + project.versionNum)
+        logger.lifecycle("Version Name: " + project.versionName)
+        logger.lifecycle("Version Date: " + project.versionDate)
+    }
+}

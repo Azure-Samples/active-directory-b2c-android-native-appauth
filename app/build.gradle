@@ -1,0 +1,46 @@
+apply plugin: 'com.android.application'
+apply plugin: 'checkstyle'
+apply from: '../config/android-common.gradle'
+apply from: '../config/keystore.gradle'
+
+android {
+    defaultConfig {
+        applicationId 'net.openid.appauthdemo'
+        project.archivesBaseName = 'appauth-demoapp'
+        vectorDrawables.useSupportLibrary = true
+
+        // replace the below string with your custom redirect scheme. Make sure this is consistent
+        // with the values used in idp_configs.xml
+        manifestPlaceholders = [
+                'appAuthRedirectScheme': 'B2C_Custom_Redirect_URI'
+        ]
+    }
+
+    signingConfigs {
+        debugAndRelease {
+            storeFile file("${rootDir}/appauth.keystore")
+            storePassword "appauth"
+            keyAlias "appauth"
+            keyPassword "appauth"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debugAndRelease
+        }
+        release {
+            signingConfig signingConfigs.debugAndRelease
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':library')
+    compile "com.android.support:appcompat-v7:${rootProject.supportLibVersion}"
+    compile "com.android.support:design:${rootProject.supportLibVersion}"
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+}
+
+apply from: '../config/style.gradle'

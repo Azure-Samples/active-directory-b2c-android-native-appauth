@@ -1,0 +1,49 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+apply from: '../config/android-common.gradle'
+
+group = "net.openid"
+version = rootProject.versionName
+
+android.defaultConfig.project.archivesBaseName = 'appauth'
+
+// Define a default value for building the tests. This is not used when building any dependent
+// libraries or apps.
+android.buildTypes.debug.manifestPlaceholders = [
+    'appAuthRedirectScheme': 'net.openid.appauth.test'
+];
+
+dependencies {
+    compile "com.android.support:customtabs:${rootProject.supportLibVersion}"
+    apply from: '../config/testdeps.gradle', to:it
+}
+
+apply from: '../config/style.gradle'
+apply from: '../config/coverage.gradle'
+apply from: '../config/javadoc.gradle'
+
+bintray {
+    user = System.getenv("BINTRAY_USER")
+    key = System.getenv("BINTRAY_KEY")
+    pkg {
+        repo = "net.openid"
+        name = "appauth"
+        desc = "AppAuth for Android"
+        userOrg = "openid"
+        licenses = ["Apache-2.0"]
+        websiteUrl = "https://openid.github.io/AppAuth-Android/"
+        issueTrackerUrl = "https://github.com/openid/AppAuth-Android/issues"
+        vcsUrl = "https://github.com/openid/AppAuth-Android.git"
+        githubRepo = 'bintray/gradle-bintray-plugin'
+
+        version {
+            name = rootProject.versionName
+            desc = "AppAuth for Android"
+            released = rootProject.versionDate
+            vcsTag = rootProject.versionName
+        }
+    }
+    configurations = ["archives"]
+}
