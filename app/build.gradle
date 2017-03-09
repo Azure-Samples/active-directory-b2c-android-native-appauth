@@ -12,7 +12,7 @@ android {
         // replace the below string with your custom redirect scheme. Make sure this is consistent
         // with the values used in idp_configs.xml
         manifestPlaceholders = [
-                'appAuthRedirectScheme': 'B2C_Custom_Redirect_URI'
+                'appAuthRedirectScheme': 'com.onmicrosoft.fabrikamb2c.exampleapp'
         ]
     }
 

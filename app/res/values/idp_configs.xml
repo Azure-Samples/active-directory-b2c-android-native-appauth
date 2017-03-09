@@ -15,7 +15,7 @@
     <bool name="b2c_enabled">true</bool>
     <string name="b2c_tenant">fabrikamb2c.onmicrosoft.com</string>
     <string name="b2c_client_id" translatable="false">7d85c49f-2c4f-461d-af0e-ea8f8b2e5a10</string>
-    <string name="b2c_redirect_uri" translatable="false">REDIRECT_URI</string>
+    <string name="b2c_redirect_uri" translatable="false">com.onmicrosoft.fabrikamb2c.exampleapp://oauthredirect</string>
     
     <!--
     Replace the optional strings below with the corresponding policy names.
