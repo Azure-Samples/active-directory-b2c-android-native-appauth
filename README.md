@@ -12,7 +12,7 @@ To use Azure AD B2C, you'll first need to create an Azure AD B2C tenant, registe
 
 * To create an Azure AD B2C tenant, checkout [these steps](https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-get-started).
 
-* To register your app, checkout [these steps](https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-app-registration).  Make sure the "Native Client" switch is turned to "Yes".
+* To register your app, checkout [these steps](https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-app-registration).  Make sure the "Native Client" switch is turned to "Yes". You will need to supply a Redirect URL with a custom scheme in order for your Android application to capture the callback. To avoid a collision with another application, we recommend using a reverse DNS notation of your B2C tenant name followed by your application name as the custom scheme. The example Redirect URI in this sample is: "com.onmicrosoft.fabrikamb2c.exampleapp:/oauthredirect" where fabrikamb2c should be replaced with your tenant name, and exampleapp should be replaced with the name of your application.
 
 * Define your [custom sign in and sign up experience](https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-reference-policies).  In Azure AD B2C, you define the experience your end users will encounter by creating policies.  For this sample, you'll want to create a single combined Sign In/Sign up policy.
 
@@ -22,17 +22,14 @@ To use Azure AD B2C, you'll first need to create an Azure AD B2C tenant, registe
 
 1. In Android Studio, click on "Import project" and select the cloned folder. You will likely get a few errors and need to install some additional tools in Android Studio. Follow the prompts and let Android Studio update the local data.
 
-**The app is already preconfigured to a demo Azure B2C tenant. At this point, you should be able to build and run the app. Follow the instructions below to configure the app with your own tenant information.**
+    **The app is already preconfigured to a demo Azure B2C tenant. At this point, you should be able to build and run the app. Follow the instructions below to configure the app with your own tenant information.**
 
 2. Inside `/app/res/values/idp_configs.xml`, replace the following fields:
 
-> * `b2c_tenant`: This is the name of your Azure AD B2C tenant
-> 
-> * `b2c_client_id`: This is your Application ID, which can be found in the Azure Portal (under Application settings).
-> 
-> * `b2c_redirect_uri`: This is your redirect URI, which can be found in the Azure Portal (under Application settings).
-> 
-> * `b2c_signupin_policy`: This is the name of your Sign Up or Sign In policy.
+   * `b2c_tenant`: This is the name of your Azure AD B2C tenant
+   * `b2c_client_id`: This is your Application ID, which can be found in the Azure Portal (under Application settings).
+   * `b2c_redirect_uri`: This is your redirect URI, which can be found in the Azure Portal (under Application settings).
+   * `b2c_signupin_policy`: This is the name of your Sign Up or Sign In policy.
 
 3. Inside '/app/build.gradle', replace the value for `appAuthRedirectScheme`. This should correspond to `b2c_redirect_uri`.
 
