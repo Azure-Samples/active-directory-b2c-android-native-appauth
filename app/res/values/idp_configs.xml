@@ -21,7 +21,5 @@
     Replace the optional strings below with the corresponding policy names.
     -->
     <string name="b2c_signupin_policy" translatable="false">B2C_1_SUSI</string>
-    <string name="b2c_editprofile_policy" translatable="false">EDITPROFILE_POLICY_NAME</string>
-    <string name="b2c_pwreset_policy" translatable="false">PWRESET_POLICY_NAME</string>
 
 </resources>
