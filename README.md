@@ -31,7 +31,7 @@ To use Azure AD B2C, you'll first need to create an Azure AD B2C tenant, registe
    * `b2c_redirect_uri`: This is your redirect URI, which can be found in the Azure Portal (under Application settings).
    * `b2c_signupin_policy`: This is the name of your Sign Up or Sign In policy.
 
-3. Inside '/app/build.gradle', replace the value for `appAuthRedirectScheme`. This should correspond to `b2c_redirect_uri`.
+3. Inside '/app/build.gradle', replace the value for `appAuthRedirectScheme`. This should correspond to the scheme of the `b2c_redirect_uri`.
 
 4. Go ahead and try the app.  You'll be able to see your custom experience, sign up for an account, and sign in to an existing account. Upon completing the login process, you should see the types of tokens acquired.
 
