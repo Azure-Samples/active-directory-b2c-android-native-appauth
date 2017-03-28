@@ -16,11 +16,13 @@ To use Azure AD B2C, you'll first need to create an Azure AD B2C tenant, registe
 
 * Define your [custom sign in and sign up experience](https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-reference-policies).  In Azure AD B2C, you define the experience your end users will encounter by creating policies.  For this sample, you'll want to create a single combined Sign In/Sign up policy.
 
-* Clone the code: ```git clone https://github.com/Azure-Samples/active-directory-android-native-appauth-b2c.git```
+* Clone the code: 
+
+   ```git clone https://github.com/Azure-Samples/active-directory-android-native-appauth-b2c.git```
 
 ### Setting up the Android App
 
-1. In Android Studio, click on "Import project" and select the cloned folder. You will likely get a few errors and need to install some additional tools in Android Studio. Follow the prompts and let Android Studio update the local data.
+1. In Android Studio, click on "File"->"New"->"Import Project" and select the cloned folder. You will likely get a few errors and need to install some additional tools in Android Studio. Follow the prompts and let Android Studio update the local data.
 
     **The app is already preconfigured to a demo Azure B2C tenant. At this point, you should be able to build and run the app. Follow the instructions below to configure the app with your own tenant information.**
 
