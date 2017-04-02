@@ -4,7 +4,7 @@ platforms: android
 author: parakhj
 ---
 
-# Azure AD B2C Android Sample
+# Integrate Azure AD B2C into an Android application
 
 **This sample demonstrates how to use Azure AD B2C using a 3rd party library called AppAuth. It has only been tested for compatibility in basic scenarios with Azure AD B2C. Issues and feature requests should be directed to the library's open-source project.**
 
