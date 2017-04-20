@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    This contains the authorization service configuration details that are used to demonstrate
+    authentication. By default, all authorization services are disabled until you modify this file
+    to provide your own configuration details.
+    -->
+    <eat-comment/>
+
+    <!--
+    Replace the strings below with your B2C configuration and enable it by setting b2c_enabled
+    to true.
+    -->
+
+    <string name="tenant" translatable="false">fabrikamb2c.onmicrosoft.com</string>
+    <string name="client_id" translatable="false">90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6</string>
+    <string name="redirect_uri" translatable="false">com.onmicrosoft.fabrikamb2c.exampleapp://oauth/redirect</string>
+    
+    <!--
+    Replace the optional strings below with the corresponding policy names.
+    -->
+    <string name="policy_signupsignin" translatable="false">b2c_1_susi</string>
+    <string name="policy_edit_profile" translatable="false">b2c_1_edit_profile</string>
+
+
+    <!--
+    Access token configs
+    -->
+    <string name="client_secret" translatable="false">v0WzLXB(uITV5*Aq</string>
+    <string name="api_url" translatable="false">https://fabrikamb2c.onmicrosoft.com/demoapi</string>
+    <string name="api_scopes" translatable="false">demo.read</string>
+
+    <!--
+    Do not change
+    -->
+    <string name="base_url" translatable="false">https://login.microsoftonline.com/tfp/%s/%s/v2.0/</string>
+</resources>

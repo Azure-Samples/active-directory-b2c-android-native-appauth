@@ -39,95 +39,80 @@ import net.openid.appauth.AuthorizationException;
 import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
-import net.openid.appauth.ClientSecretBasic;
-import net.openid.appauth.RegistrationRequest;
-import net.openid.appauth.RegistrationResponse;
 import net.openid.appauth.ResponseTypeValues;
 import net.openid.appauth.browser.BrowserDescriptor;
 import net.openid.appauth.browser.ExactBrowserMatcher;
 import net.openid.appauthdemo.BrowserSelectionAdapter.BrowserInfo;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
- * Demonstrates the usage of the AppAuth library to connect to a set of pre-configured
- * OAuth2 providers.
- *
- * <p><em>NOTE</em>: From a clean checkout of this project, no IDPs are automatically configured.
- * Edit {@code res/values/idp_configs.xml} to specify the required configuration properties to
- * enable the IDPs you wish to test. If you wish to add additional IDPs for testing, please see
- * {@link IdentityProvider}.
+ * Demonstrates the usage of the AppAuth library to connect to Azure AD B2C.
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
+    private AzureAdB2cConfig azureAdB2cConfig;
     private AuthorizationService mAuthService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        azureAdB2cConfig = new AzureAdB2cConfig(MainActivity.this);
+
         mAuthService = new AuthorizationService(this);
         ViewGroup idpButtonContainer = (ViewGroup) findViewById(R.id.idp_button_container);
-        List<IdentityProvider> providers = IdentityProvider.getEnabledProviders(this);
 
-        findViewById(R.id.sign_in_container).setVisibility(
-                providers.isEmpty() ? View.GONE : View.VISIBLE);
-        findViewById(R.id.no_idps_configured).setVisibility(
-                providers.isEmpty() ? View.VISIBLE : View.GONE);
+        //TODO: Remove these lines
+        findViewById(R.id.sign_in_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.no_idps_configured).setVisibility(View.GONE);
 
         configureBrowserSelector();
 
-        for (final IdentityProvider idp : providers) {
-            final AuthorizationServiceConfiguration.RetrieveConfigurationCallback retrieveCallback =
-                    new AuthorizationServiceConfiguration.RetrieveConfigurationCallback() {
+        final AuthorizationServiceConfiguration.RetrieveConfigurationCallback retrieveCallback =
+                new AuthorizationServiceConfiguration.RetrieveConfigurationCallback() {
 
-                        @Override
-                        public void onFetchConfigurationCompleted(
-                                @Nullable AuthorizationServiceConfiguration serviceConfiguration,
-                                @Nullable AuthorizationException ex) {
-                            if (ex != null) {
-                                Log.w(TAG, "Failed to retrieve configuration for " + idp.name, ex);
-                            } else {
-                                Log.d(TAG, "configuration retrieved for " + idp.name
-                                        + ", proceeding");
-                                if (idp.getClientId() == null) {
-                                    // Do dynamic client registration if no client_id
-                                    makeRegistrationRequest(serviceConfiguration, idp);
-                                } else {
-                                    makeAuthRequest(serviceConfiguration, idp, new AuthState());
-                                }
-                            }
+                    @Override
+                    public void onFetchConfigurationCompleted(
+                            @Nullable AuthorizationServiceConfiguration serviceConfiguration,
+                            @Nullable AuthorizationException ex) {
+                        if (serviceConfiguration == null) {
+                            Log.w(TAG, "Service configuration not provided");
                         }
-                    };
+                        else if (ex != null) {
+                            Log.w(TAG, "Failed to retrieve configuration", ex);
+                        } else {
+                            Log.d(TAG, "configuration retrieved, proceeding");
+                            makeAuthRequest(serviceConfiguration, azureAdB2cConfig, new AuthState());
+                        }
+                    }
+                };
 
-            FrameLayout idpButton = new FrameLayout(this);
-            idpButton.setBackgroundResource(idp.buttonImageRes);
-            idpButton.setContentDescription(
-                    getResources().getString(idp.buttonContentDescriptionRes));
-            idpButton.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT));
-            idpButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.d(TAG, "initiating auth for " + idp.name);
-                    idp.retrieveConfig(MainActivity.this, retrieveCallback);
-                }
-            });
-
-            TextView label = new TextView(this);
-            label.setText(idp.name);
-            label.setTextColor(getColorCompat(idp.buttonTextColorRes));
-            label.setLayoutParams(new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    Gravity.CENTER));
-            idpButton.addView(label);
-
-            idpButtonContainer.addView(idpButton);
-        }
+        //TODO: Replace with proper string
+        String btn_label = getResources().getString(R.string.no_idps_configured);
+        FrameLayout idpButton = new FrameLayout(this);
+        idpButton.setBackgroundResource(R.drawable.solid_background);
+        idpButton.setContentDescription(btn_label);
+        idpButton.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        idpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                    Log.d(TAG, "initiating auth");
+                    AuthorizationServiceConfiguration.fetchFromUrl(azureAdB2cConfig.getDiscoveryEndpoint(), retrieveCallback);
+            }
+        });
+        TextView label = new TextView(this);
+        label.setText(btn_label);
+        label.setTextColor(getColorCompat(android.R.color.holo_red_dark));
+        label.setLayoutParams(new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER));
+        idpButton.addView(label);
+        
+        idpButtonContainer.addView(idpButton);
     }
 
     @Override
@@ -154,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                BrowserInfo info = (BrowserInfo) adapter.getItem(position);
+                BrowserInfo info = adapter.getItem(position);
                 mAuthService.dispose();
                 mAuthService = new AuthorizationService(
                         MainActivity.this,
@@ -173,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void makeAuthRequest(
             @NonNull AuthorizationServiceConfiguration serviceConfig,
-            @NonNull IdentityProvider idp,
+            @NonNull AzureAdB2cConfig azureAdB2cConfig,
             @NonNull AuthState authState) {
 
         String loginHint = ((EditText) findViewById(R.id.login_hint_value))
@@ -187,14 +172,17 @@ public class MainActivity extends AppCompatActivity {
 
         AuthorizationRequest authRequest = new AuthorizationRequest.Builder(
                 serviceConfig,
-                idp.getClientId(),
+                azureAdB2cConfig.getClientId(),
+                //azureAdB2cConfig.getResponseType(),
+                //TODO: REMOVE
                 ResponseTypeValues.CODE,
-                idp.getRedirectUri())
-                .setScope(idp.getScope())
+                azureAdB2cConfig.getRedirectUri())
+                .setScope(azureAdB2cConfig.getScope())
                 .setLoginHint(loginHint)
                 .build();
 
         Log.d(TAG, "Making auth request to " + serviceConfig.authorizationEndpoint);
+        Log.d(TAG, "Request " + authRequest.jsonSerializeString());
         mAuthService.performAuthorizationRequest(
                 authRequest,
                 TokenActivity.createPostAuthorizationIntent(
@@ -205,36 +193,6 @@ public class MainActivity extends AppCompatActivity {
                 mAuthService.createCustomTabsIntentBuilder()
                         .setToolbarColor(getColorCompat(R.color.colorAccent))
                         .build());
-    }
-
-    private void makeRegistrationRequest(
-            @NonNull AuthorizationServiceConfiguration serviceConfig,
-            @NonNull final IdentityProvider idp) {
-
-        final RegistrationRequest registrationRequest = new RegistrationRequest.Builder(
-                serviceConfig,
-                Arrays.asList(idp.getRedirectUri()))
-                .setTokenEndpointAuthenticationMethod(ClientSecretBasic.NAME)
-                .build();
-
-        Log.d(TAG, "Making registration request to " + serviceConfig.registrationEndpoint);
-        mAuthService.performRegistrationRequest(
-                registrationRequest,
-                new AuthorizationService.RegistrationResponseCallback() {
-                    @Override
-                    public void onRegistrationRequestCompleted(
-                            @Nullable RegistrationResponse registrationResponse,
-                            @Nullable AuthorizationException ex) {
-                        Log.d(TAG, "Registration request complete");
-                        if (registrationResponse != null) {
-                            idp.setClientId(registrationResponse.clientId);
-                            Log.d(TAG, "Registration request complete successfully");
-                            // Continue with the authentication
-                            makeAuthRequest(registrationResponse.request.configuration, idp,
-                                    new AuthState((registrationResponse)));
-                        }
-                    }
-                });
     }
 
 

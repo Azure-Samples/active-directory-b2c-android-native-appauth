@@ -66,7 +66,7 @@ public class TokenActivity extends AppCompatActivity {
     private static final String TAG = "TokenActivity";
 
     private static final String KEY_AUTH_STATE = "authState";
-    private static final String KEY_USER_INFO = "userInfo";
+    private static final String KEY_ID_TOKEN = "idToken";
 
     private static final String EXTRA_AUTH_SERVICE_DISCOVERY = "authServiceDiscovery";
     private static final String EXTRA_AUTH_STATE = "authState";
@@ -77,26 +77,31 @@ public class TokenActivity extends AppCompatActivity {
     private AuthorizationService mAuthService;
     private JSONObject mUserInfoJson;
 
+    private TextView txtDetails;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.e(TAG, "Called back via redirect uri");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_token);
+
+        txtDetails  = (TextView) findViewById(R.id.txtDetails);
 
         mAuthService = new AuthorizationService(this);
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(KEY_AUTH_STATE)) {
                 try {
-                    mAuthState = AuthState.jsonDeserialize(
-                            savedInstanceState.getString(KEY_AUTH_STATE));
+                    String authState = savedInstanceState.getString(KEY_AUTH_STATE);
+                    mAuthState = AuthState.jsonDeserialize(authState != null ? authState : "");
                 } catch (JSONException ex) {
                     Log.e(TAG, "Malformed authorization JSON saved", ex);
                 }
             }
 
-            if (savedInstanceState.containsKey(KEY_USER_INFO)) {
+            if (savedInstanceState.containsKey(KEY_ID_TOKEN)) {
                 try {
-                    mUserInfoJson = new JSONObject(savedInstanceState.getString(KEY_USER_INFO));
+                    mUserInfoJson = new JSONObject(savedInstanceState.getString(KEY_ID_TOKEN));
                 } catch (JSONException ex) {
                     Log.e(TAG, "Failed to parse saved user info JSON", ex);
                 }
@@ -115,6 +120,7 @@ public class TokenActivity extends AppCompatActivity {
                 exchangeAuthorizationCode(response);
             } else {
                 Log.i(TAG, "Authorization failed: " + ex);
+                txtDetails.setText(ex != null ? ex.getMessage() : "");
                 showSnackbar(R.string.authorization_failed);
             }
         }
@@ -127,9 +133,9 @@ public class TokenActivity extends AppCompatActivity {
         if (mAuthState != null) {
             state.putString(KEY_AUTH_STATE, mAuthState.jsonSerializeString());
         }
-
+        
         if (mUserInfoJson != null) {
-            state.putString(KEY_USER_INFO, mUserInfoJson.toString());
+            state.putString(KEY_ID_TOKEN, mUserInfoJson.toString());
         }
     }
 
@@ -147,6 +153,9 @@ public class TokenActivity extends AppCompatActivity {
         showSnackbar((tokenResponse != null)
                 ? R.string.exchange_complete
                 : R.string.refresh_failed);
+        //TODO: REMOVE
+        if (tokenResponse != null) txtDetails.setText(tokenResponse.accessToken);
+        //------------
         refreshUi();
     }
 
@@ -193,12 +202,9 @@ public class TokenActivity extends AppCompatActivity {
             }
         });
 
+        //TODO: Rename to call api
         Button viewProfileButton = (Button) findViewById(R.id.view_profile);
-
-        AuthorizationServiceDiscovery discoveryDoc = getDiscoveryDocFromIntent(getIntent());
-        if (!mAuthState.isAuthorized()
-                || discoveryDoc == null
-                || discoveryDoc.getUserinfoEndpoint() == null) {
+        if (!mAuthState.isAuthorized()) {
             viewProfileButton.setVisibility(View.GONE);
         } else {
             viewProfileButton.setVisibility(View.VISIBLE);
@@ -208,14 +214,27 @@ public class TokenActivity extends AppCompatActivity {
                     new AsyncTask<Void, Void, Void>() {
                         @Override
                         protected Void doInBackground(Void... params) {
-                            fetchUserInfo();
+                            getRandomNumber();
                             return null;
                         }
                     }.execute();
                 }
             });
         }
+        
+        String idToken = mAuthState.getIdToken();
+        if (idToken != null) {
+            try {
+                //TODO: Replace for token validation logic
+                mUserInfoJson = new JSONObject(idToken);
+            } catch (JSONException jsonex) {
+                Log.e(TAG, "Unable to parse id token");
+                //TODO: Remove
+                Log.e(TAG, idToken);
+            }
+        }
 
+        //TODO: DELETE
         View userInfoCard = findViewById(R.id.userinfo_card);
         if (mUserInfoJson == null) {
             userInfoCard.setVisibility(View.INVISIBLE);
@@ -274,63 +293,41 @@ public class TokenActivity extends AppCompatActivity {
                 });
     }
 
-    private void fetchUserInfo() {
-        if (mAuthState.getAuthorizationServiceConfiguration() == null) {
-            Log.e(TAG, "Cannot make userInfo request without service configuration");
+
+    private void getRandomNumber(){
+        URL apiEndpoint;
+        try {
+            apiEndpoint = new URL("https://{replace}-functions.azurewebsites.net/api/RandomNumber");
+        } catch (MalformedURLException urlEx) {
+            Log.e(TAG, "Failed to construct user info endpoint URL", urlEx);
+            return;
         }
 
-        mAuthState.performActionWithFreshTokens(mAuthService, new AuthState.AuthStateAction() {
-            @Override
-            public void execute(String accessToken, String idToken, AuthorizationException ex) {
-                if (ex != null) {
-                    Log.e(TAG, "Token refresh failed when fetching user info");
-                    return;
-                }
-
-                AuthorizationServiceDiscovery discoveryDoc = getDiscoveryDocFromIntent(getIntent());
-                if (discoveryDoc == null) {
-                    throw new IllegalStateException("no available discovery doc");
-                }
-
-                URL userInfoEndpoint;
+        InputStream apiResponse = null;
+        try {
+            HttpURLConnection conn = (HttpURLConnection) apiEndpoint.openConnection();
+            conn.setRequestProperty("Authorization", "Bearer " + mAuthState.getAccessToken());
+            conn.setInstanceFollowRedirects(false);
+            apiResponse = conn.getInputStream();
+            updateRandomNumber(readStream(apiResponse));
+        } catch (IOException ioEx) {
+            Log.e(TAG, "Network error when querying api endpoint", ioEx);
+        } finally {
+            if (apiResponse != null) {
                 try {
-                    userInfoEndpoint = new URL(discoveryDoc.getUserinfoEndpoint().toString());
-                } catch (MalformedURLException urlEx) {
-                    Log.e(TAG, "Failed to construct user info endpoint URL", urlEx);
-                    return;
-                }
-
-                InputStream userInfoResponse = null;
-                try {
-                    HttpURLConnection conn = (HttpURLConnection) userInfoEndpoint.openConnection();
-                    conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-                    conn.setInstanceFollowRedirects(false);
-                    userInfoResponse = conn.getInputStream();
-                    String response = readStream(userInfoResponse);
-                    updateUserInfo(new JSONObject(response));
+                    apiResponse.close();
                 } catch (IOException ioEx) {
-                    Log.e(TAG, "Network error when querying userinfo endpoint", ioEx);
-                } catch (JSONException jsonEx) {
-                    Log.e(TAG, "Failed to parse userinfo response");
-                } finally {
-                    if (userInfoResponse != null) {
-                        try {
-                            userInfoResponse.close();
-                        } catch (IOException ioEx) {
-                            Log.e(TAG, "Failed to close userinfo response stream", ioEx);
-                        }
-                    }
+                    Log.e(TAG, "Failed to close userinfo response stream", ioEx);
                 }
             }
-        });
+        }
     }
 
-    private void updateUserInfo(final JSONObject jsonObject) {
+    private void updateRandomNumber(final String randomNumber) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mUserInfoJson = jsonObject;
-                refreshUi();
+                txtDetails.setText(randomNumber);
             }
         });
     }
@@ -366,18 +363,6 @@ public class TokenActivity extends AppCompatActivity {
         }
 
         return PendingIntent.getActivity(context, request.hashCode(), intent, 0);
-    }
-
-    static AuthorizationServiceDiscovery getDiscoveryDocFromIntent(Intent intent) {
-        if (!intent.hasExtra(EXTRA_AUTH_SERVICE_DISCOVERY)) {
-            return null;
-        }
-        String discoveryJson = intent.getStringExtra(EXTRA_AUTH_SERVICE_DISCOVERY);
-        try {
-            return new AuthorizationServiceDiscovery(new JSONObject(discoveryJson));
-        } catch (JSONException | AuthorizationServiceDiscovery.MissingArgumentException  ex) {
-            throw new IllegalStateException("Malformed JSON in discovery doc");
-        }
     }
 
     static AuthState getAuthStateFromIntent(Intent intent) {

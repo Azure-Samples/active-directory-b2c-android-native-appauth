@@ -10,7 +10,7 @@ android {
         vectorDrawables.useSupportLibrary = true
 
         // replace the below string with your custom redirect scheme. Make sure this is consistent
-        // with the values used in idp_configs.xml
+        // with the values used in azure_ad_b2c_config.xml
         manifestPlaceholders = [
                 'appAuthRedirectScheme': 'com.onmicrosoft.fabrikamb2c.exampleapp'
         ]

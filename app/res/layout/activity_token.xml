@@ -124,6 +124,11 @@
                     tools:text="{'blah': 'blah'}" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/txtDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
     </ScrollView>
 </android.support.design.widget.CoordinatorLayout>
