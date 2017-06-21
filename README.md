@@ -1,7 +1,7 @@
 ---
 services: active-directory-b2c
 platforms: android
-author: parakhj
+author: danieldobalian
 ---
 
 # Integrate Azure AD B2C into an Android application
