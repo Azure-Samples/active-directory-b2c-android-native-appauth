@@ -32,6 +32,11 @@ To use Azure AD B2C, you'll first need to create an Azure AD B2C tenant, registe
 
     **The app is already preconfigured to a demo Azure B2C tenant. At this point, you should be able to build and run the app. Follow the instructions below to configure the app with your own tenant information.**
 
+> [!NOTE]
+>developers using the [Azure China Environment](https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-national-cloud), MUST use <your-tenant-name>.b2clogin.cn) authority, instead of `login.chinacloudapi.cn`. 
+>
+> The `b2c_redirect_uri` for China should use `com.*` and should be unique. This seems to be an issue with AppAuth accepting redirect Uris.
+
 2. Inside `/app/res/values/idp_configs.xml`, replace the following fields:
 
    * `b2c_tenant`: This is the name of your Azure AD B2C tenant
@@ -39,10 +44,9 @@ To use Azure AD B2C, you'll first need to create an Azure AD B2C tenant, registe
    * `b2c_redirect_uri`: This is your redirect URI, which can be found in the Azure Portal (under Application settings).
    * `b2c_signupin_policy`: This is the name of your Sign Up or Sign In policy.
 
-3. Inside '/app/build.gradle', replace the value for `appAuthRedirectScheme`. This should correspond to the scheme of the `b2c_redirect_uri`.
+3. Inside '/app/build.gradle', replace the value for `appAuthRedirectScheme`. This should correspond to the scheme of the `b2c_redirect_uri` (without the /oauth/redirect).
 
 4. Go ahead and try the app.  You'll be able to see your custom experience, sign up for an account, and sign in to an existing account. Upon completing the login process, you should see the types of tokens acquired.
-
 
 ## Next Steps
 
