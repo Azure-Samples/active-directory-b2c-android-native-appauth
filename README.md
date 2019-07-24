@@ -1,7 +1,12 @@
 ---
-services: active-directory-b2c
-platforms: android
-author: danieldobalian
+page_type: sample
+description: "This sample is a quickstart to help you get started with Azure AD B2C on Android using a 3rd party library called AppAuth."
+languages:
+- java
+products:
+- azure
+- azure-active-directory
+urlFragment: integrate-azure-ad-b2c-android-app
 ---
 
 # Integrate Azure AD B2C into an Android application
