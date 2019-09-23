@@ -11,7 +11,7 @@ urlFragment: integrate-azure-ad-b2c-android-app
 
 # Integrate Azure AD B2C into an Android application
 
-**This sample demonstrates how to use Azure AD B2C using a 3rd party library called AppAuth. It has only been tested for compatibility in basic scenarios with Azure AD B2C. Issues and feature requests should be directed to the library's open-source project.**
+This sample demonstrates how to use Azure AD B2C using a 3rd party library called AppAuth. It has only been tested for compatibility in basic scenarios with Azure AD B2C. Issues and feature requests should be directed to the library's open-source project.
 
 This sample is a quickstart to help you get started with Azure AD B2C on Android using a 3rd party library called AppAuth. The sample is already configured to use a demo environment and can be run simply by downloading the code and building the app on your machine. Follow the instructions below if you would like to use your own Azure AD B2C configuration.
 
